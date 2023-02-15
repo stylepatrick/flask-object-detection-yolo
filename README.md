@@ -1,2 +1,2 @@
 # flask-object-detection-yolo
- flask-object-detection-yolo
+Flask API with integration of YOLO models for object detection.
