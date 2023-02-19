@@ -1,9 +1,11 @@
 import argparse
 import io
+import mimetypes
+
 from PIL import Image
 
 import torch
-from flask import Flask, request
+from flask import Flask, request, send_file
 
 app = Flask(__name__)
 
@@ -19,8 +21,12 @@ def predict():
         image_file = request.files["image"]
         image_bytes = image_file.read()
         img = Image.open(io.BytesIO(image_bytes))
-        results = model(img, size=640)
-        return results.pandas().xyxy[0].to_json(orient="records")
+        results = model([img], size=640)
+        results.render()  # updates results.imgs with boxes and labels
+        img_savename = f"static/123.png"
+        #Image.fromarray(results.ims[0]).show()
+        Image.fromarray(results.ims[0]).save(img_savename)
+        return send_file(img_savename, mimetype=f"{mimetypes.guess_type(img_savename)}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Flask api exposing yolov5 model!")
